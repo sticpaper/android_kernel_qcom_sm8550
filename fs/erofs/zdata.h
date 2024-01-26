@@ -69,6 +69,9 @@ struct z_erofs_pcluster {
 	/* I: compression algorithm format */
 	unsigned char algorithmformat;
 
+	/* L: whether extra buffer allocations are best-effort */
+	bool besteffort;
+
 	/* A: compressed pages (can be cached or inplaced pages) */
 	struct page *compressed_pages[];
 };
