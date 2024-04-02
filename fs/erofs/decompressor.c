@@ -49,7 +49,7 @@ int z_erofs_load_lz4_config(struct super_block *sb,
 	sbi->lz4.max_distance_pages = distance ?
 					DIV_ROUND_UP(distance, PAGE_SIZE) + 1 :
 					LZ4_MAX_DISTANCE_PAGES;
-	return erofs_pcpubuf_growsize(sbi->lz4.max_pclusterblks);
+	return z_erofs_gbuf_growsize(sbi->lz4.max_pclusterblks);
 }
 
 /*
@@ -161,7 +161,7 @@ static void *z_erofs_lz4_handle_inplace_io(struct z_erofs_decompress_req *rq,
 docopy:
 	/* Or copy compressed data which can be overlapped to per-CPU buffer */
 	in = rq->in;
-	src = erofs_get_pcpubuf(nrpages_in);
+	src = z_erofs_get_gbuf(nrpages_in);
 	if (!src) {
 		DBG_BUGON(1);
 		kunmap_atomic(inpage);
@@ -250,7 +250,7 @@ static int z_erofs_lz4_decompress_mem(struct z_erofs_decompress_req *rq,
 	} else if (maptype == 1) {
 		vm_unmap_ram(src, PAGE_ALIGN(rq->inputsize) >> PAGE_SHIFT);
 	} else if (maptype == 2) {
-		erofs_put_pcpubuf(src);
+		z_erofs_put_gbuf(src);
 	} else {
 		DBG_BUGON(1);
 		return -EFAULT;
