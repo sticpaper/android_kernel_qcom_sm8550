@@ -850,7 +850,8 @@ retry:
 	/* should allocate an additional short-lived page for pagevec */
 	if (err == -EAGAIN) {
 		struct page *const newpage =
-				alloc_page(GFP_NOFS | __GFP_NOFAIL);
+				__erofs_allocpage(pagepool,
+						  GFP_NOFS | __GFP_NOFAIL, true);
 
 		set_page_private(newpage, Z_EROFS_SHORTLIVED_PAGE);
 		err = z_erofs_attach_page(clt, newpage,
@@ -1314,7 +1315,7 @@ repeat:
 	unlock_page(page);
 	put_page(page);
 out_allocpage:
-	page = erofs_allocpage(pagepool, gfp | __GFP_NOFAIL);
+	page = __erofs_allocpage(pagepool, gfp | __GFP_NOFAIL, true);
 	if (oldpage != cmpxchg(&pcl->compressed_pages[nr], oldpage, page)) {
 		erofs_pagepool_add(pagepool, page);
 		cond_resched();
